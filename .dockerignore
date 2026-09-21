@@ -1,0 +1,14 @@
+node_modules
+server/node_modules
+dist
+.git
+.gitignore
+server/data.db
+server/data.db-wal
+server/data.db-shm
+*.mjs
+qa-*
+.vscode
+.kilo
+.qodo
+.vite

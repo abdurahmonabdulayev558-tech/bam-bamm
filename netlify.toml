@@ -1,0 +1,32 @@
+# ============================================================
+#  ✅ NETLIFY'GA QO'YISH — TO'LIQ ISHLAYDI
+# ============================================================
+#  Backend Netlify Functions ko'rinishida (netlify/functions/api.mjs),
+#  baza esa Netlify Blobs'da saqlanadi (SQLite ishlatilmaydi).
+#  Barcha /api/* so'rovlari funksiyaga yo'naltiriladi.
+# ============================================================
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  # Netlify'da ishlatiladigan Node.js versiyasi.
+  environment = { NODE_VERSION = "20" }
+
+[functions]
+  directory = "netlify/functions"
+  # api.mjs @netlify/blobs bilan keladi — u bundler tomonidan tashqi
+  # modul sifatida qoldirilishi kerak (aks holda Blobs ishlamaydi).
+  node_bundler = "esbuild"
+  external_node_modules = ["@netlify/blobs"]
+
+# /api/* so'rovlarini Netlify Function'ga yo'naltiradi (SPA redirect'dan OLDIN turishi kerak).
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+# SPA (React) sayt uchun: barcha manzillarni index.html ga yo'naltiradi.
+# Shu tufayli /admin va /teacher manzillari ham ochiladi.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

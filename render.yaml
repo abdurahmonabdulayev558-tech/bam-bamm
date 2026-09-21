@@ -1,0 +1,25 @@
+# Render.com uchun deploy sozlamasi.
+# Bu fayl orqali Render loyihani avtomatik sozlaydi:
+#   - build: frontend'ni build qiladi va backend paketlarini o'rnatadi
+#   - start: bitta serverda ham sayt, ham API ishlaydi (http://.../ , /admin, /teacher)
+services:
+  - type: web
+    name: time-party
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Baza doimiy diskda saqlanadi (pastdagi diskka ulanadi)
+      - key: DATA_DIR
+        value: /var/data
+    # Doimiy disk — baza serverlar qayta ishga tushganda ham saqlanib qoladi.
+    # (Render'да doimiy disk bepul tarifda mavjud emas; agar kerak bo'lsa to'lovli tarif.
+    #  Doimiy disksiz ham tizim ishlaydi, faqat server qayta ishga tushganda
+    #  baza boshlang'ich holatga qaytadi.)
+    disk:
+      name: time-party-data
+      mountPath: /var/data
+      sizeGB: 1
