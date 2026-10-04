@@ -1,4 +1,4 @@
-﻿import express from 'express'
+﻿﻿import express from 'express'
 import cors from 'cors'
 import Database from 'better-sqlite3'
 import { fileURLToPath } from 'node:url'
@@ -163,8 +163,41 @@ app.post('/api/parties', (req, res) => {
   if (!title) return res.status(400).json({ error: 'no_title' })
   const maxSort = db.prepare('SELECT COALESCE(MAX(sort), 0) AS m FROM parties').get().m
   const info = db.prepare('INSERT INTO parties (title, subtitle, icon, tone, votes, sort) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(title, "Admin tomonidan qo'shilgan party", 'вњЁ', 'mint', 0, maxSort + 1)
+    .run(title, "Admin tomonidan qo'shilgan party", '✨', 'mint', 0, maxSort + 1)
   res.json({ id: info.lastInsertRowid })
+})
+
+// Party'ni tahrirlash (nomi va tavsifi)
+app.put('/api/parties/:id', (req, res) => {
+  const id = Number(req.params.id)
+  const cur = db.prepare('SELECT * FROM parties WHERE id = ?').get(id)
+  if (!cur) return res.status(404).json({ error: 'not_found' })
+  const b = req.body || {}
+  const title = (b.title ?? cur.title).trim()
+  if (!title) return res.status(400).json({ error: 'no_title' })
+  const subtitle = (b.subtitle ?? cur.subtitle).trim()
+  const tx = db.transaction(() => {
+    db.prepare('UPDATE parties SET title = ?, subtitle = ? WHERE id = ?').run(title, subtitle, id)
+    // Nom o'zgargan bo'lsa — eski ovozlarni yangi nomga bog'laymiz.
+    if (cur.title && cur.title !== title) {
+      db.prepare('UPDATE votes SET party = ? WHERE party = ?').run(title, cur.title)
+    }
+  })
+  tx()
+  res.json({ ok: true })
+})
+
+// Party'ni o'chirish (ovozlari bilan birga)
+app.delete('/api/parties/:id', (req, res) => {
+  const id = Number(req.params.id)
+  const cur = db.prepare('SELECT * FROM parties WHERE id = ?').get(id)
+  if (!cur) return res.status(404).json({ error: 'not_found' })
+  const tx = db.transaction(() => {
+    db.prepare('DELETE FROM parties WHERE id = ?').run(id)
+    db.prepare('DELETE FROM votes WHERE party = ?').run(cur.title)
+  })
+  tx()
+  res.json({ ok: true })
 })
 
 app.post('/api/parties/reset', (req, res) => {

@@ -130,3 +130,17 @@
 .party-stat-count { font-size: 12px; font-weight: 800; color: #9a7900; }
 .party-stat-bar { grid-column: 1 / -1; height: 8px; border-radius: 6px; background: rgba(23,23,23,.08); overflow: hidden; }
 .party-stat-bar span { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: linear-gradient(90deg, #171717, #f0c400); }
+/* --- Party variantlarini boshqarish (admin panel) --- */
+.party-manage-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.party-manage-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(120, 130, 110, 0.16); }
+.party-manage-row .pm-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.party-manage-row .pm-title strong { font-weight: 600; }
+.party-manage-row .pm-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.party-manage-row .pm-actions button { padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.party-manage-row .pm-actions .secondary { background: rgba(120, 130, 110, 0.14); color: #3d4a33; }
+.party-manage-row .pm-actions .danger { background: #f7d9d4; color: #a5342a; }
+.party-manage-row .pm-actions button:hover { filter: brightness(0.96); }
+@media (max-width: 520px) {
+  .party-manage-row { flex-direction: column; align-items: stretch; }
+  .party-manage-row .pm-actions { justify-content: flex-end; }
+}

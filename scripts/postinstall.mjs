@@ -25,7 +25,10 @@ if (!existsSync(join(serverDir, 'package.json'))) {
 }
 
 console.log('[postinstall] server/ bog\'liqliklari o\'rnatilmoqda...')
-const res = spawnSync('npm', ['--prefix', serverDir, 'install'], { stdio: 'inherit', shell: true })
+// Windows'da 'npm' o'rniga 'npm.cmd' ishlatiladi va shell kerak emas
+// (shell + bo'sh joyli yo'l 'Unknown command' xatosiga olib keladi).
+const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+const res = spawnSync(npmCmd, ['--prefix', serverDir, 'install'], { stdio: 'inherit', shell: false })
 if (res.status !== 0) {
   console.warn('[postinstall] server/ o\'rnatilmadi (xato). Lokal backend kerak bo\'lsa qo\'lda o\'rnating: npm --prefix server install')
 }

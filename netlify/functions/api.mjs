@@ -108,7 +108,7 @@ const json = (data, status = 200) =>
       'Content-Type': 'application/json',
       'Cache-Control': 'no-store',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   })
@@ -178,6 +178,36 @@ export default async (req, context) => {
     db.parties.push({ id: nextId(db, 'parties'), title: body.title, subtitle: "Admin tomonidan qo'shilgan party", icon: '✨', tone: 'mint', votes: 0, sort: maxSort + 1 })
     await saveDb(db)
     return json({ id: db.parties[db.parties.length - 1].id })
+  }
+
+  // ===== PUT /parties/:id (tahrirlash) =====
+  if (method === 'PUT' && seg[0] === 'parties' && seg[1] && seg.length === 2) {
+    const id = Number(seg[1])
+    const cur = db.parties.find((p) => p.id === id)
+    if (!cur) return json({ error: 'not_found' }, 404)
+    const title = (body.title ?? cur.title).trim()
+    if (!title) return json({ error: 'no_title' }, 400)
+    const oldTitle = cur.title
+    cur.title = title
+    cur.subtitle = (body.subtitle ?? cur.subtitle).trim()
+    // Nom o'zgargan bo'lsa — eski ovozlarni yangi nomga bog'laymiz.
+    if (oldTitle && oldTitle !== title) {
+      db.votes.forEach((v) => { if (v.party === oldTitle) v.party = title })
+    }
+    await saveDb(db)
+    return json({ ok: true })
+  }
+
+  // ===== DELETE /parties/:id (o'chirish) =====
+  if (method === 'DELETE' && seg[0] === 'parties' && seg[1] && seg.length === 2) {
+    const id = Number(seg[1])
+    const cur = db.parties.find((p) => p.id === id)
+    if (!cur) return json({ error: 'not_found' }, 404)
+    db.parties = db.parties.filter((p) => p.id !== id)
+    // O'chirilgan party uchun berilgan ovozlarni ham olib tashlaymiz.
+    db.votes = db.votes.filter((v) => v.party !== cur.title)
+    await saveDb(db)
+    return json({ ok: true })
   }
 
   // ===== POST /parties/reset =====

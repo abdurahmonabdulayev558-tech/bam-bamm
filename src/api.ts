@@ -48,6 +48,12 @@ export const api = {
   addParty: (title: string) =>
     request('/parties', { method: 'POST', body: JSON.stringify({ title }) }),
 
+  updateParty: (id: number, p: { title: string; subtitle?: string }) =>
+    request(`/parties/${id}`, { method: 'PUT', body: JSON.stringify(p) }),
+
+  deleteParty: (id: number) =>
+    request(`/parties/${id}`, { method: 'DELETE' }),
+
   resetVotes: () => request('/parties/reset', { method: 'POST' }),
 
   setVoting: (open: boolean) =>
